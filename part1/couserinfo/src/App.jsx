@@ -10,9 +10,17 @@ const Content = (props) => {
     const content_list = props.content_list
     return (
         <>
-        <p>{content_list[0].part} {content_list[0].exercises}</p>
-        <p>{content_list[1].part} {content_list[1].exercises}</p>
-        <p>{content_list[2].part} {content_list[2].exercises}</p>
+            <Part part={content_list[0].part} exercises={content_list[0].exercises}/>
+            <Part part={content_list[1].part} exercises={content_list[1].exercises}/>
+            <Part part={content_list[2].part} exercises={content_list[2].exercises}/>
+        </>
+    )
+}
+
+const Part = (props) =>{
+    return (
+        <>
+            <p>{props.part} {props.exercises}</p>
         </>
     )
 }
