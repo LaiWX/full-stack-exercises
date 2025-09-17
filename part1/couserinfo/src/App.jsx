@@ -1,18 +1,17 @@
 const Header = (props) =>{
     return (
         <>
-        <h1>{props.course}</h1>
+            <h1>{props.course}</h1>
         </>
     )
 }
 
 const Content = (props) => {
-    const content_list = props.content_list
     return (
         <>
-            <Part part={content_list[0].part} exercises={content_list[0].exercises}/>
-            <Part part={content_list[1].part} exercises={content_list[1].exercises}/>
-            <Part part={content_list[2].part} exercises={content_list[2].exercises}/>
+            <Part part={props.part1.name} exercises={props.part1.exercises}/>
+            <Part part={props.part2.name} exercises={props.part2.exercises}/>
+            <Part part={props.part3.name} exercises={props.part3.exercises}/>
         </>
     )
 }
@@ -26,14 +25,13 @@ const Part = (props) =>{
 }
 
 const Total = (props) =>{
-    const content_list= props.content_list
     return (
         <>
             <p>
                 Number of exercises {
-                    content_list[0].exercises +
-                    content_list[1].exercises +
-                    content_list[2].exercises
+                    props.part1.exercises +
+                    props.part2.exercises +
+                    props.part3.exercises
                 }
             </p>
         </>
@@ -42,18 +40,23 @@ const Total = (props) =>{
 
 const App = () => {
     const course = 'Half Stack application development'
-    const content_list = [
-        {part: "Fundamentals of React", exercises: 10},
-        {part: "Using props to pass data", exercises: 7},
-        {part: "State of a component", exercises: 14},
-
-    ]
-
+    const part1 = {
+        name: 'Fundamentals of React',
+        exercises: 10
+    }
+    const part2 = {
+        name: 'Using props to pass data',
+        exercises: 10
+    }
+    const part3 = {
+        name: 'State of a component',
+        exercises: 10
+    }
     return (
         <div>
             <Header course={course} />
-            <Content content_list={content_list} />
-            <Total content_list={content_list} />
+            <Content part1={part1} part2={part2} part3={part3} />
+            <Total part1={part1} part2={part2} part3={part3} />
         </div>
     )
 }
