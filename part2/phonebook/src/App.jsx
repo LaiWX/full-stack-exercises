@@ -1,64 +1,7 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import phonebookServer from "./services/phonebook.js";
+import {Filter, PersonForm, Persons} from './components/Phonebook'
 
-const Filter = ({ filterString, onFilterStringChange }) => {
-    return (
-        <div>
-            <label htmlFor='filter'>filter shown with</label>
-            <input
-                id='filter'
-                value={filterString}
-                onChange={(e) => {onFilterStringChange(e.target.value)}} />
-        </div>
-    )
-}
-
-const PersonForm = ({name, onNameChange, number, onNumberChange, onSubmit}) => {
-    return (
-        <form onSubmit={onSubmit}>
-            <Input
-                name='name'
-                value={name}
-                handleChange={onNameChange}
-            />
-            <Input
-                name='number'
-                value={number}
-                handleChange={onNumberChange}
-            />
-            <div>
-                <button type="submit">add</button>
-            </div>
-        </form>
-    )
-}
-
-const Input = ({ name, value, handleChange }) => {
-    return (
-        <div>
-            <label htmlFor={name}>{name}: </label>
-            <input
-                id={name}
-                value={value}
-                onChange={
-                    (e) => handleChange(e.target.value)
-            }/>
-        </div>
-    )
-}
-
-const Persons = ({persons}) => {
-    return persons.map(
-        (person) =>
-            <Person key={person.name} name={person.name} number={person.number} />
-    )
-}
-
-const Person = ({ name, number}) => {
-    return (
-        <div>{name} {number}</div>
-    )
-}
 const App = () => {
     const [persons, setPersons] = useState([])
     const [newName, setNewName] = useState('')
@@ -66,28 +9,54 @@ const App = () => {
     const [filterString, setFilterString] = useState('')
 
     useEffect(() => {
-        axios
-            .get('http://localhost:3001/persons')
-            .then((res) => {
-                setPersons(res.data)
-            })
+        phonebookServer
+            .getAll()
+            .then(res => setPersons(res.data))
     },[])
 
     const onNameSubmit = (e) => {
         e.preventDefault()
-        const isExist = persons.some(person => person.name === newName)
-        if (isExist) {
-            alert(`${newName} is already added to phonebook`)
+        const existPerson = persons.find(person => person.name === newName)
+        if (existPerson) {
+            if (window.confirm(`${newName} is already added to phonebook, 
+            replace the old with a new one?`)) {
+                onChange({...existPerson, number: newNumber})
+            }
         } else {
             const newNameObject = {
                 name: newName,
                 number: newNumber,
             }
-            setPersons(persons.concat(newNameObject))
+            phonebookServer
+                .create(newNameObject)
+                .then(res =>
+                    setPersons(persons.concat(res.data))
+                )
         }
     }
 
-    let personToShow = []
+    const onChange = (person) => {
+        phonebookServer
+            .update(person)
+            .then(res => {
+                const changedPerson = res.data
+                const newPersons = persons.map((person) =>
+                    person.name === changedPerson.name ? changedPerson : person
+                )
+                setPersons(newPersons)
+            })
+    }
+
+    const onDelete = (id, name) => {
+        if (window.confirm(`Delete ${name}`)) {
+            phonebookServer.deletePerson(id)
+                .then(res =>
+                    setPersons(persons.filter(person => person.id !== res.data.id))
+                )
+        }
+    }
+
+    let personToShow
     if (filterString === '') {
         personToShow = persons
     } else {
@@ -109,7 +78,7 @@ const App = () => {
                 onSubmit={onNameSubmit}
             />
             <h3>Numbers</h3>
-            <Persons persons={personToShow} />
+            <Persons persons={personToShow} onDelete={onDelete}/>
         </div>
     )
 }
