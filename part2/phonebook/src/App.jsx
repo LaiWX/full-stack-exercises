@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react'
 import phonebookServer from "./services/phonebook.js";
 import {Filter, PersonForm, Persons} from './components/Phonebook'
+import InfoMessage from "./components/InfoMessage.jsx";
 
 const App = () => {
     const [persons, setPersons] = useState([])
     const [newName, setNewName] = useState('')
     const [newNumber, setNewNumber] = useState('')
     const [filterString, setFilterString] = useState('')
+    const [message, setMessage] = useState(null)
 
     useEffect(() => {
         phonebookServer
@@ -18,8 +20,7 @@ const App = () => {
         e.preventDefault()
         const existPerson = persons.find(person => person.name === newName)
         if (existPerson) {
-            if (window.confirm(`${newName} is already added to phonebook, 
-            replace the old with a new one?`)) {
+            if (window.confirm(`${newName} is already added to phonebook, replace the old with a new one?`)) {
                 onChange({...existPerson, number: newNumber})
             }
         } else {
@@ -32,17 +33,29 @@ const App = () => {
                 .then(res =>
                     setPersons(persons.concat(res.data))
                 )
+            setMessage(`Added ${newName}`)
+            setTimeout(() => {
+                setMessage(null)
+            }, 3000)
         }
     }
 
-    const onChange = (person) => {
+    const onChange = (personOnChange) => {
         phonebookServer
-            .update(person)
+            .update(personOnChange)
             .then(res => {
                 const changedPerson = res.data
                 const newPersons = persons.map((person) =>
                     person.name === changedPerson.name ? changedPerson : person
                 )
+                setPersons(newPersons)
+            })
+            .catch((e) => {
+                setMessage(`Information of ${personOnChange.name} has already been removed from server`)
+                setTimeout(() =>
+                    setMessage(null)
+                , 3000)
+                const newPersons = persons.filter((person) => person.name !== personOnChange.name)
                 setPersons(newPersons)
             })
     }
@@ -68,6 +81,7 @@ const App = () => {
     return (
         <div>
             <h2>Phonebook</h2>
+            <InfoMessage message={message} />
             <Filter filterString={filterString} onFilterStringChange={setFilterString} />
             <h3>add a new</h3>
             <PersonForm
