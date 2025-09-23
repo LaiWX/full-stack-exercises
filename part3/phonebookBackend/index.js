@@ -4,7 +4,7 @@ const app = express()
 
 app.use(express.json())
 
-const persons = [
+let persons = [
     {
         "id": "1",
         "name": "Arto Hellas",
@@ -27,9 +27,47 @@ const persons = [
     }
 ]
 
+const generateID = () => {
+    const id = Math.floor(Math.random() * 1e10)
+    return String(id)
+}
+
 // main api
 app.get("/api/persons", (req, res) => {
     res.json(persons)
+})
+
+// single person
+app.get("/api/persons/:id", (req, res) => {
+    const id = req.params.id
+    const person = persons.find(person => person.id === id)
+    res.json(person)
+})
+
+// add person
+app.post("/api/persons", (req, res) => {
+    const person = req.body
+    if (!person.name || !person.number) {
+        res.status(400).json({
+            error: 'name or number does not exist'
+        })
+        return
+    } else if (persons.find(i => i.name === person.name)) {
+        res.status(400).json({
+            error: 'name must be unique'
+        })
+        return
+    }
+    person.id = generateID()
+    persons.push(person)
+    res.status(201).end()
+})
+
+// delete
+app.delete("/api/persons/:id", (req, res) => {
+    const id = req.params.id
+    persons = persons.filter(person => person.id !== id)
+    res.status(204).end()
 })
 
 // information page
