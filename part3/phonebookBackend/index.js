@@ -45,7 +45,7 @@ const generateID = () => {
 }
 
 // frontend
-app.use(express.static('dist'))
+app.use(express.static('frontend'))
 
 // main api
 app.get("/api/persons", (req, res) => {
