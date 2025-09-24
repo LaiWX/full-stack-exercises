@@ -44,8 +44,8 @@ const generateID = () => {
     return String(id)
 }
 
-// frontend
-app.use(express.static('frontend'))
+// public
+app.use(express.static('public'))
 
 // main api
 app.get("/api/persons", (req, res) => {
