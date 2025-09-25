@@ -1,5 +1,7 @@
+require('dotenv').config()
 const express = require('express')
 const morgan = require('morgan')
+const Person = require('./model/persons')
 
 const app = express()
 
@@ -39,24 +41,22 @@ let persons = [
     }
 ]
 
-const generateID = () => {
-    const id = Math.floor(Math.random() * 1e10)
-    return String(id)
-}
-
 // public
 app.use(express.static('public'))
 
 // main api
 app.get("/api/persons", (req, res) => {
-    res.json(persons)
+    Person
+        .find({})
+        .then((persons) => {
+            res.json(persons)
+        })
 })
 
 // single person
 app.get("/api/persons/:id", (req, res) => {
     const id = req.params.id
-    const person = persons.find(person => person.id === id)
-    res.json(person)
+    Person.findById(id).then(person => res.json(person))
 })
 
 // add person
@@ -67,15 +67,16 @@ app.post("/api/persons", (req, res) => {
             error: 'name or number does not exist'
         })
         return
-    } else if (persons.find(i => i.name === person.name)) {
-        res.status(400).json({
-            error: 'name must be unique'
-        })
-        return
     }
-    person.id = generateID()
-    persons.push(person)
-    res.status(201).end()
+
+    const newPerson = new Person({
+        name: person.name,
+        number: person.number,
+    })
+    newPerson.save().then((saved) => {
+        console.log(saved)
+        res.status(201).json(saved)
+    })
 })
 
 // delete
