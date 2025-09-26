@@ -7,7 +7,6 @@ Content-Type: application/json
   "number": "040-123456"
 }
 
-###
 ### Delete
 DELETE http://localhost:3001/api/persons/1
 
@@ -15,4 +14,11 @@ DELETE http://localhost:3001/api/persons/1
 GET https://examples.http-client.intellij.net/get
     ?generated-in=WebStorm
 
-###
+### Put
+PUT http://localhost:3001/api/persons/111
+Content-Type: application/json
+
+{
+  "name": "Arto Hellas",
+  "number": "040-123456"
+}
