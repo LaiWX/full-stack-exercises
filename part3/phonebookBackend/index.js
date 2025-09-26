@@ -42,12 +42,6 @@ app.get("/api/persons/:id", (req, res) => {
 // add person
 app.post("/api/persons", (req, res, next) => {
     const person = req.body
-    if (!person.name || !person.number) {
-        res.status(400).json({
-            error: 'name or number does not exist'
-        })
-        return
-    }
 
     const newPerson = new Person({
         name: person.name,
@@ -69,7 +63,7 @@ app.put("/api/persons/:id", (req, res, next) => {
     Person.findById(id)
         .then((person) => {
         if (!person) {
-            res.status(404).end()
+            return next({name: 'PersonNotExite', message: 'person do not exite'})
         }
 
         person.name = name
@@ -112,9 +106,28 @@ app.use(unknownEndpoint)
 
 const errorHandle = (err, req, res, next) => {
     console.log('caught error:',err.message)
-    if (err.name === 'CastError') {
-        res.status(400).send({ error: 'malformatted id'})
+
+    if (err.name === 'PersonNotExite') {
+        res.status(400).send({
+            error: 'person do not exite',
+            errorType: 'PersonNotExite',
+        })
     }
+
+    if (err.name === 'CastError') {
+        res.status(400).send({
+            error: 'malformatted id',
+            errorType: 'CastError',
+        })
+    }
+
+    if (err.name === 'ValidationError') {
+        res.status(400).send({
+            error: err.message,
+            errorType: 'ValidationError',
+        })
+    }
+
     next(err)
 }
 

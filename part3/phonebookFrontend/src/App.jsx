@@ -30,13 +30,20 @@ const App = () => {
             }
             phonebookServer
                 .create(newNameObject)
-                .then(res =>
+                .then(res => {
                     setPersons(persons.concat(res.data))
-                )
-            setMessage(`Added ${newName}`)
-            setTimeout(() => {
-                setMessage(null)
-            }, 3000)
+                    setMessage(`Added ${newName}`)
+                    setTimeout(() => {
+                        setMessage(null)
+                    }, 3000)
+                })
+                .catch(err => {
+                    console.log(err)
+                    setMessage(err.response.data.error)
+                    setTimeout(() => {
+                        setMessage(null)
+                    }, 9000)
+                })
         }
     }
 
@@ -50,13 +57,16 @@ const App = () => {
                 )
                 setPersons(newPersons)
             })
-            .catch(() => {
-                setMessage(`Information of ${personOnChange.name} has already been removed from server`)
-                setTimeout(() =>
-                    setMessage(null)
-                , 3000)
-                const newPersons = persons.filter((person) => person.name !== personOnChange.name)
-                setPersons(newPersons)
+            .catch((err) => {
+                if (err.response.data.errorType === 'PersonNotExite') {
+                    setMessage(`Information of ${personOnChange.name} has already been removed from server`)
+                    setTimeout(() => setMessage(null), 3000)
+                    const newPersons = persons.filter((person) => person.name !== personOnChange.name)
+                    setPersons(newPersons)
+                } else if (err.response.data.errorType === 'ValidationError') {
+                    setMessage(err.response.data.error)
+                    setTimeout(() => setMessage(null), 3000)
+                }
             })
     }
 
