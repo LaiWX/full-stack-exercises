@@ -1,6 +1,6 @@
 const { test, describe } = require('node:test')
 const assert = require('node:assert')
-const { dummy, totalLikes, favoriteBlog, mostBlogs } = require('../utils/list_helper')
+const { dummy, totalLikes, favoriteBlog, mostBlogs, mostLikes } = require('../utils/list_helper')
 
 describe('test list_helper', () => {
   test('dummy return one', () => {
@@ -213,5 +213,67 @@ describe('test mostBlogs', () => {
       },
     ]
     assert.deepStrictEqual(mostBlogs(blogs), { author: "Robert" , blogs: 2 })
+  })
+})
+
+describe('test mostLikes', () => {
+  test('empty blog', () => {
+    const blogs = []
+    assert.deepStrictEqual(mostLikes(blogs), {})
+  })
+  test('single blog', () => {
+    const blogs = [
+      {
+        author: "Robert",
+        url: "https://reactpatterns.com/",
+        likes: 5,
+      }
+    ]
+    assert.deepStrictEqual(mostLikes(blogs), { author: "Robert" , likes: 5})
+  })
+  test('multiple blogs by the same author', () => {
+    const blogs = [
+      {
+        author: "Robert",
+        url: "https://reactpatterns.com/",
+        likes: 5,
+      },
+      {
+        author: "Robert",
+        url: "https://reactpatterns.com/",
+        likes: 5,
+      },
+      {
+        author: "Robert",
+        url: "https://reactpatterns.com/",
+        likes: 5,
+      },
+    ]
+    assert.deepStrictEqual(mostLikes(blogs), { author: "Robert" , likes: 15 })
+  })
+  test('multiple blogs by different authors', () => {
+    const blogs = [
+      {
+        author: "Robert",
+        url: "https://reactpatterns.com/",
+        likes: 2,
+      },
+      {
+        author: "FOO",
+        url: "https://reactpatterns.com/",
+        likes: 5,
+      },
+      {
+        author: "Mike",
+        url: "https://reactpatterns.com/",
+        likes: 2,
+      },
+      {
+        author: "Robert",
+        url: "https://reactpatterns.com/",
+        likes: 2,
+      },
+    ]
+    assert.deepStrictEqual(mostLikes(blogs), { author: "FOO" , likes: 5 })
   })
 })

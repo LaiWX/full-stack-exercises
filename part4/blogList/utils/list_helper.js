@@ -1,6 +1,4 @@
-const { info } = require('./logger')
-
-const dummy = (blogs) => {
+const dummy = () => {
   return 1
 }
 
@@ -29,10 +27,28 @@ const mostBlogs = (blogs) => {
     return acc
   }, {})
 
-  return Object.entries(counts).reduce((bestAuthor, [author, blogs]) => {
-    return bestAuthor && bestAuthor.blogs >= blogs
-      ? bestAuthor
+  return Object.entries(counts).reduce((mostHardworkingAuthor, [author, blogs]) => {
+    return mostHardworkingAuthor && mostHardworkingAuthor.blogs >= blogs
+      ? mostHardworkingAuthor
       : { author, blogs}
+  }, {})
+}
+
+const mostLikes = (blogs) => {
+  const likesCounts = blogs.reduce((acc, blog) => {
+    const author = blog.author
+    if (acc[author]) {
+      acc[author] = acc[author] + blog.likes
+    } else {
+      acc[author] = blog.likes
+    }
+    return acc
+  }, {})
+
+  return Object.entries(likesCounts).reduce((mostPopularAuthor, [author, likes]) => {
+    return mostPopularAuthor && mostPopularAuthor.likes >= likes
+      ? mostPopularAuthor
+      : { author, likes}
   }, {})
 }
 
@@ -41,4 +57,5 @@ module.exports = {
   totalLikes,
   favoriteBlog,
   mostBlogs,
+  mostLikes,
 }
